@@ -1,10 +1,11 @@
 I'm creating this repository to store my findings on accessing the last byte of data in a packet within [XDP](https://www.iovisor.org/technology/xdp). This is currently **unresolved**.
 
 ## Building
-You can use `make` to quickly build this project.
+You can use the `make` command to quickly build this project. Otherwise, you can use the following commands.
 
-```
-make
+```bash
+clang -O2 -g -target bpf -o build/last_one.o -c src/last_one.c
+clang -O2 -g -target bpf -o build/last_two.o -c src/last_two.c
 ```
 
 ## Attaching The XDP Programs
