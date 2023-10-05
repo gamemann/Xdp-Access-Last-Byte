@@ -3,13 +3,13 @@
 static long (*bpf_trace_printk)(const char *fmt, __u32 fmt_size, ...) = (void *) 6;
 
 #ifndef ___bpf_nth
-#define ___bpf_nth(_, _1, _2, _3, _4, _5, _6, _7, _8, _9, _a, _b, _c, N, ...) N
+    #define ___bpf_nth(_, _1, _2, _3, _4, _5, _6, _7, _8, _9, _a, _b, _c, N, ...) N
 #endif
 
 #ifdef BPF_NO_GLOBAL_DATA
-#define BPF_PRINTK_FMT_MOD
+    #define BPF_PRINTK_FMT_MOD
 #else
-#define BPF_PRINTK_FMT_MOD static const
+    #define BPF_PRINTK_FMT_MOD static const
 #endif
 
 #define __bpf_printk(fmt, ...)				\
