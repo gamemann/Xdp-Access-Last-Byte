@@ -224,5 +224,59 @@ libbpf: prog 'prog': failed to load: -13
 libbpf: failed to load object 'build/last_two.o'
 ```
 
+### `last_three.c`
+In our [last_three.c](./src/last_three.c) XDP program, we try to retrieve the last byte of data using the `data_end` pointer which is supposed to represent the location in memory where the packet ends (should be the last byte of the packet, though, this doesn't guarantee it's the last byte of the packet's payload due to the possibility of extra padding, etc. being added). Unfortunately, using `data_end` is prohibited in XDP.
+
+```C
+#include <linux/bpf.h>
+
+#include "common.h"
+
+SEC("xdp_prog")
+int prog(struct xdp_md* ctx) {
+    // Initialize data and data_end.
+    void* data = (void*)(long)ctx->data;
+    void* data_end = (void*)(long)ctx->data_end;
+
+    // Initialize our last byte of data.
+    __u8* last = data_end;
+
+    // Make sure our last byte is within the packet's bounds by comparing to data and data_end.
+    if (last > (__u8*)data_end)
+        return XDP_PASS;
+
+    if (last < (__u8*)data)
+        return XDP_PASS;
+
+    // Print the last byte of data to /sys/kernel/tracing/trace_pipe.
+    bpf_printk("Last byte of packet is %d.\n", *last);
+
+    return XDP_PASS;
+}
+
+char _license[] SEC("license") = "GPL";
+```
+
+This results in the following error.
+
+```
+libbpf: prog 'prog': BPF program load failed: Permission denied
+libbpf: prog 'prog': -- BEGIN PROG LOAD LOG --
+0: R1=ctx(off=0,imm=0) R10=fp0
+; void* data_end = (void*)(long)ctx->data_end;
+0: (61) r2 = *(u32 *)(r1 +4)          ; R1=ctx(off=0,imm=0) R2_w=pkt_end(off=0,imm=0)
+; void* data = (void*)(long)ctx->data;
+1: (61) r1 = *(u32 *)(r1 +0)          ; R1_w=pkt(off=0,r=0,imm=0)
+; if (last < (__u8*)data)
+2: (2d) if r1 > r2 goto pc+5          ; R1_w=pkt(off=0,r=0,imm=0) R2_w=pkt_end(off=0,imm=0)
+; bpf_printk("Last byte of packet is %d.\n", *last);
+3: (71) r3 = *(u8 *)(r2 +0)
+R2 invalid mem access 'pkt_end'
+processed 4 insns (limit 1000000) max_states_per_insn 0 total_states 0 peak_states 0 mark_read 0
+-- END PROG LOAD LOG --
+libbpf: prog 'prog': failed to load: -13
+libbpf: failed to load object 'build/last_three.o'
+```
+
 ## Conclusion
 This is unfortunately not yet resolved in my case, but I will update this repository when/if I do find a solution. I really feel our [last_one.c](./src/last_one.c) XDP program is the best option due to its simplicity and not relying on the value of `iph->total_len` (since this can be set incorrectly in malformed packets).
