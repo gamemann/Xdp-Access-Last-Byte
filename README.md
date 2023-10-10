@@ -126,7 +126,7 @@ int prog(struct xdp_md* ctx) {
         return XDP_PASS;
 
     // Initialize TCP header and check.
-    struct tcphdr* tcph = (struct tcphdr*)iph + 1;
+    struct tcphdr* tcph = data + sizeof(struct ethhdr) + (iph->ihl * 4);
 
     if (tcph + 1 > (struct tcphdr *)data_end)
         return XDP_DROP;
@@ -135,7 +135,7 @@ int prog(struct xdp_md* ctx) {
     __u16 ipLen = ntohs(iph->tot_len);
 
     // Initialize payload.
-    __u8* pl = (__u8*)(tcph + 1);
+    __u8* pl = data + sizeof(struct ethhdr) + (iph->ihl * 4) + (tcph->doff * 4);
     
     // Retrieve offset to last packet.
     __u16 off = ipLen - (iph->ihl * 4) - (tcph->doff * 4);
