@@ -16,7 +16,7 @@ ip link set <interfaceName> xdp obj build/<prog>.o section xdp_prog
 ```
 
 * `<interfaceName>` - The interface name that you want to attach the XDP program to (`ip a`, `ip link`, and `ifconfig` are commands to list interface names in most Linux distros).
-* `<prog>` - The test program to attach after building via `make` (e.g. `last_one` or `last_two`).
+* `<prog>` - The test program to attach after building via `make` (e.g. `last_one`, `last_two`, or `last_three`).
 
 ## Findings So Far
 ### `last_one.c`
