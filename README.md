@@ -1,4 +1,7 @@
-I'm creating this repository to store my findings on accessing the last byte of data in a packet within [XDP](https://www.iovisor.org/technology/xdp). This is currently **unresolved**.
+I'm creating this repository to store my findings on accessing the last byte of data in a packet within [XDP](https://www.iovisor.org/technology/xdp).
+
+## Update (7-10-24)
+I completely forgot about a solution to accessing the last byte of data in XDP I used a long time ago. Please check out my XDP Forwarding project's code [here](https://github.com/gamemann/XDP-Forwarding/blob/master/src/xdp_prog.c#L181) which shows how I did this (in my case, I added four bytes of data to the end of the packet that was set to the client's IP address). You may also check out [this mailing list thread](https://lore.kernel.org/bpf/CANzUK5-g9wLiwUF88em4uVzMja_aR4xj9yzMS_ZObNKjvX6C6g@mail.gmail.com/) which is where I found the solution.
 
 ## Building
 You can use the `make` command to quickly build this project. Otherwise, you can use the following commands.
